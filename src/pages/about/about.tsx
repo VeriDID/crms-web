@@ -1,6 +1,6 @@
-import * as React from 'react';
-import type { HeadFC, PageProps } from 'gatsby';
-import Students from './components/students';
+import * as React from "react";
+import type { HeadFC, PageProps } from "gatsby";
+import Students from "./components/students";
 
 const AboutPage: React.FC<Partial<PageProps>> = () => {
   return (
