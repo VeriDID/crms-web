@@ -7,7 +7,10 @@ const Header: React.FC<Partial<PageProps>> = () => {
 
   return (
     <HeaderContainer className="flex items-center p-8 bai-jamjuree-regular">
-      <div>{title}</div>
+      <div>
+        {/* {title} */}
+        <img src="logo.svg" className="logo" />
+      </div>
     </HeaderContainer>
   );
 };
@@ -21,8 +24,11 @@ const HeaderContainer = styled.div`
   height: 100px;
   & > div {
     padding: 10px;
-    background: #ffbb57;
     font-size: 30px;
     color: #1b1b1b;
+    img {
+      width: 86px;
+      height: 86px;
+    }
   }
 `;
