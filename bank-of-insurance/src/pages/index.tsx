@@ -24,7 +24,7 @@ const IndexPage: React.FC<Partial<PageProps>> = () => {
         <h1 className="bai-jamjuree-regular">{title}</h1>
       </div>
 
-      <TableContainer className="overflow-hidden my-2">
+      <TableContainer className="overflow-x-auto my-2">
         <table className="min-w-full text-left">
           <Thead className="inter-regular text-base">
             <tr>
@@ -78,6 +78,10 @@ const TableContainer = styled.div`
   border: 1px solid #d3d3d3;
   border-radius: 4px;
   box-shadow: 0px 4px 4px 0px #1b1b1b1a;
+  table {
+    min-width: 400px;
+    width: 100%;
+  }
 `;
 const Thead = styled.thead`
   background: #f8f8f8;

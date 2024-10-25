@@ -9,7 +9,7 @@ const Layout: React.FC = () => {
       <Header />
       <div className="flex">
         <Navbar />
-        <main className="px-6 py-8 w-full">
+        <main className="px-6 py-8 w-full overflow-hidden">
           <Outlet />
         </main>
       </div>

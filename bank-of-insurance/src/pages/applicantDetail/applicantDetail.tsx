@@ -125,7 +125,7 @@ const TranscriptBox = styled.div`
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  max-height: 200px;
+  max-height: 400px;
   overflow-y: auto;
   pre {
     margin: 0;
