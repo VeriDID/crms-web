@@ -1,28 +1,60 @@
 import * as React from "react";
 import { useState } from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import type { HeadFC, PageProps } from "gatsby";
 
+const API_URL = import.meta.env.VITE_API_URL;
+const AGENT = import.meta.env.VITE_AGENT_NAME;
+
 const AddStudentPage: React.FC<Partial<PageProps>> = () => {
-  const [student, setStudent] = useState(null as any);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [studentId, setStudentId] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [invitationUrl, setInvitationUrl] = useState("");
+  const navigate = useNavigate();
 
-  const handleSearch = () => {
-    // TODO: Mock search result, replace with actual search logic
-    setStudent({
-      name: "Jason Student",
-      id: "123456789",
-    });
-  };
-
-  const openInviteModal = () => {
-    setIsInviteModalOpen(true);
+  const openInviteModal = async () => {
+    try {
+      // Send the invite request
+      const response = await fetch(
+        `${API_URL}/v1.0/connections/create-new-invitation`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            agentName: AGENT,
+            attachmentData: {
+              id: studentId,
+              student_name: studentName,
+            },
+          }),
+        }
+      );
+      if (response.ok) {
+        const data = await response.text();
+        setInvitationUrl(data); // Assuming the API returns an invitation URL
+        setIsInviteModalOpen(true);
+      } else {
+        console.error("Failed to create invitation");
+      }
+    } catch (error) {
+      console.error("Error sending invitation:", error);
+    }
   };
 
   const closeInviteModal = () => {
     setIsInviteModalOpen(false);
+    setInvitationUrl("");
+  };
+
+  const completeAndGoHome = () => {
+    setIsInviteModalOpen(false);
+    setInvitationUrl("");
+    navigate("/");
   };
 
   return (
@@ -51,34 +83,28 @@ const AddStudentPage: React.FC<Partial<PageProps>> = () => {
           </span>
         </Link>
       </div>
-      <section className="flex items-center mt-10 idLookUp">
+      <section className="flex flex-col gap-2 items-end mt-10 form-add">
         <input
           type="text"
           className="px-2 inter-regular"
-          placeholder="Student ID Lookup"
+          placeholder="Student ID Number"
+          value={studentId}
+          onChange={(e) => setStudentId(e.target.value)}
+        />
+        <input
+          type="text"
+          className="px-2 inter-regular"
+          placeholder="Student Name"
+          value={studentName}
+          onChange={(e) => setStudentName(e.target.value)}
         />
         <button
-          onClick={handleSearch}
+          onClick={openInviteModal}
           className="text-white px-6 inter-regular-bold"
         >
-          Search
+          Invite
         </button>
       </section>
-
-      {student && (
-        <StudentCard className="mt-4 rounded flex justify-between items-center p-4">
-          <div>
-            <span className="inter-regular-bold">{student.name}</span>
-            <p className="inter-regular">Student ID: {student.id}</p>
-          </div>
-          <button
-            onClick={openInviteModal}
-            className="inter-regular-bold text-white rounded px-4 py-2"
-          >
-            Invite
-          </button>
-        </StudentCard>
-      )}
 
       {isInviteModalOpen && (
         <ModalOverlay>
@@ -86,10 +112,10 @@ const AddStudentPage: React.FC<Partial<PageProps>> = () => {
             <h3 className="bai-jamjuree-regular text-3xl">Invite</h3>
             <StudentInfo className="flex justify-between items-center mt-10 mb-5 pb-5">
               <div>
-                <span className="inter-regular-bold">{student.name}</span>
-                <p className="inter-regular">Student ID: {student.id}</p>
+                <span className="inter-regular-bold">{studentName}</span>
+                <p className="inter-regular">Student ID: {studentId}</p>
               </div>
-              <QRCodeSVG value={student.id} size={150} />
+              <QRCodeSVG value={invitationUrl} size={200} />
             </StudentInfo>
             <ModalActions className="inter-regular-bold flex justify-end">
               <button
@@ -98,7 +124,10 @@ const AddStudentPage: React.FC<Partial<PageProps>> = () => {
               >
                 Close
               </button>
-              <button className="completeBtn text-white py-2 px-4 rounded">
+              <button
+                onClick={completeAndGoHome}
+                className="completeBtn text-white py-2 px-4 rounded"
+              >
                 Complete
               </button>
             </ModalActions>
@@ -115,39 +144,23 @@ export const Head: HeadFC = () => <title>Add Student</title>;
 
 /* Styles */
 const PageContainer = styled.div`
-  .idLookUp input {
+  .form-add {
+    max-width: 500px;
+  }
+  .form-add input {
     font-size: 16px;
     color: #1b1b1b;
     border: 1px solid #d3d3d3;
-    border-radius: 4px 0 0 4px;
-    border-right: none;
+    border-radius: 4px;
     height: 40px;
     outline: none;
-    width: 300px;
+    width: 100%;
   }
-  .idLookUp button {
+  .form-add button {
     font-size: 19px;
     background: #ffa41d;
     height: 40px;
-    border-radius: 0 4px 4px 0;
-  }
-`;
-const StudentCard = styled.div`
-  box-shadow: 0px 4px 4px 0px #1b1b1b1a;
-  border: 1px solid #d3d3d3;
-  background: #f8f8f8;
-  font-size: 16px;
-  width: 412px;
-  span {
-    font-weight: bold;
-    color: #1b1b1b;
-  }
-  p {
-    margin: 0;
-    color: #1b1b1b;
-  }
-  button {
-    background: #ffa41d;
+    border-radius: 4px;
   }
 `;
 /***/

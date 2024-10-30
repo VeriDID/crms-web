@@ -1,10 +1,50 @@
 import * as React from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import type { HeadFC, PageProps } from "gatsby";
+import useAgentStore from "@/stores/useAgent.store";
+
+const API_URL = import.meta.env.VITE_API_URL;
+const AGENT = import.meta.env.VITE_AGENT_NAME;
 
 const IndexPage: React.FC<Partial<PageProps>> = () => {
   const title = "Students";
+  const [students, setStudents] = useState([]);
+
+  useEffect(() => {
+    const fetchStudents = async () => {
+      const agentInfo = useAgentStore.getState().agentInfo;
+
+      // Only fetch students if agentInfo is available
+      if (!agentInfo) return;
+
+      try {
+        const response = await fetch(
+          `${API_URL}/v1.0/connections/agent/${AGENT}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data && data?.statusCode !== 500) {
+          setStudents(data);
+        }
+      } catch (error) {
+        console.error("Error fetching student data:", error);
+      }
+    };
+
+    // Set a timeout of 5 seconds before fetching
+    const timeoutId = setTimeout(() => {
+      fetchStudents();
+    }, 1000);
+
+    // Clean up the timeout if the component unmounts
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   return (
     <PageContainer>
@@ -32,38 +72,40 @@ const IndexPage: React.FC<Partial<PageProps>> = () => {
       </div>
 
       <TableContainer className="overflow-x-auto my-2">
-        <table className="min-w-full text-left">
-          <Thead className="inter-regular text-base">
-            <tr>
-              <th scope="col" className="px-6 py-4">
-                Student ID
-              </th>
-              <th scope="col" className="px-6 py-4">
-                Student Name
-              </th>
-              <th scope="col" className="px-6 py-4">
-                Status
-              </th>
-            </tr>
-          </Thead>
-          <Tbody className="inter-regular text-base">
-            <tr>
-              <td className="whitespace-nowrap px-6 py-4">123456789</td>
-              <td className="whitespace-nowrap px-6 py-4">Jason Student</td>
-              <td className="whitespace-nowrap px-6 py-4">Pending</td>
-            </tr>
-            <tr>
-              <td className="whitespace-nowrap px-6 py-4">123456788</td>
-              <td className="whitespace-nowrap px-6 py-4">Brian Student</td>
-              <td className="whitespace-nowrap px-6 py-4">Active</td>
-            </tr>
-            <tr>
-              <td className="whitespace-nowrap px-6 py-4">123456787</td>
-              <td className="whitespace-nowrap px-6 py-4">Mark Student</td>
-              <td className="whitespace-nowrap px-6 py-4">Active</td>
-            </tr>
-          </Tbody>
-        </table>
+        {students.length === 0 ? (
+          <NoRecordsMessage>There are no records!</NoRecordsMessage>
+        ) : (
+          <table className="min-w-full text-left">
+            <Thead className="inter-regular text-base">
+              <tr>
+                <th scope="col" className="px-6 py-4">
+                  Student ID
+                </th>
+                <th scope="col" className="px-6 py-4">
+                  Student Name
+                </th>
+                <th scope="col" className="px-6 py-4">
+                  Status
+                </th>
+              </tr>
+            </Thead>
+            <Tbody className="inter-regular text-base">
+              {students.map((student: any) => (
+                <tr key={student?.id}>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    {student?.metadata?.id?.id ?? "-"}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    {student?.metadata?.id?.student_name ?? "-"}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    {student?.state ?? "-"}
+                  </td>
+                </tr>
+              ))}
+            </Tbody>
+          </table>
+        )}
       </TableContainer>
     </PageContainer>
   );
@@ -104,4 +146,10 @@ const Tbody = styled.tbody`
   tr:nth-child(odd) {
     background: #ffffff;
   }
+`;
+const NoRecordsMessage = styled.p`
+  padding: 20px;
+  font-size: 18px;
+  color: #1b1b1b;
+  text-align: center;
 `;
