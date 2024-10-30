@@ -93,10 +93,10 @@ const IndexPage: React.FC<Partial<PageProps>> = () => {
               {students.map((student: any) => (
                 <tr key={student?.id}>
                   <td className="whitespace-nowrap px-6 py-4">
-                    {student?.metadata?.id?.id ?? "-"}
+                    {student?.metadata?.StudentRecord?.id ?? "-"}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    {student?.metadata?.id?.student_name ?? "-"}
+                    {student?.metadata?.StudentRecord?.student_name ?? "-"}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     {student?.state ?? "-"}
