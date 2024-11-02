@@ -14,13 +14,13 @@ const AGENT_API = import.meta.env.VITE_AGENT_API;
 
 const fetchInitialData = async () => {
   const setAgentInfo = useAgentStore.getState().setAgentInfo; // Get the setAgentInfo function from the store
-  try {
-    const response = await fetch(`${API_URL}/v1.0/credo/${AGENT_API}`);
-    const result = await response.text();
-    setAgentInfo(result); // Update the agent info in the Zustand store
-  } catch (error) {
-    console.error("Error fetching initial data:", error);
-  }
+  // try {
+  //   const response = await fetch(`${API_URL}/v1.0/credo/${AGENT_API}`);
+  //   const result = await response.text();
+  //   setAgentInfo(result); // Update the agent info in the Zustand store
+  // } catch (error) {
+  //   console.error("Error fetching initial data:", error);
+  // }
 };
 
 // Fetch initial data before rendering - create agent
