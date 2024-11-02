@@ -34,7 +34,7 @@ export default Navbar;
 /* Styles */
 const NavbarContainer = styled.div`
   background: #1b1b1b;
-  height: calc(100vh - 100px);
+  min-height: calc(100vh - 100px);
   width: 200px;
 `;
 const StyledLink = styled(Link)`
