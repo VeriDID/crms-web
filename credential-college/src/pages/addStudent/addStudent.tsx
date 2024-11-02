@@ -115,7 +115,7 @@ const AddStudentPage: React.FC<Partial<PageProps>> = () => {
                 <span className="inter-regular-bold">{studentName}</span>
                 <p className="inter-regular">Student ID: {studentId}</p>
               </div>
-              <QRCodeSVG value={invitationUrl} size={200} />
+              <QRCodeSVG value={invitationUrl} size={500} />
             </StudentInfo>
             <ModalActions className="inter-regular-bold flex justify-end">
               <button
