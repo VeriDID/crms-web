@@ -1,10 +1,35 @@
 import * as React from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import type { HeadFC, PageProps } from "gatsby";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const JobPage: React.FC<Partial<PageProps>> = () => {
   const title = "Job Postings";
+
+  const [jobs, setJobs] = useState([]);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await fetch(`${API_URL}/jobs`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data && data?.statusCode !== 500) {
+          setJobs(data);
+        }
+      } catch (error) {
+        console.error("Error fetching student data:", error);
+      }
+    };
+    fetchJobs();
+  }, []);
 
   return (
     <PageContainer>
@@ -32,38 +57,40 @@ const JobPage: React.FC<Partial<PageProps>> = () => {
       </div>
 
       <TableContainer className="overflow-x-auto my-2">
-        <table className="min-w-full text-left">
-          <Thead className="inter-regular text-base">
-            <tr>
-              <th scope="col" className="px-6 py-4">
-                Company
-              </th>
-              <th scope="col" className="px-6 py-4">
-                Date
-              </th>
-              <th scope="col" className="px-6 py-4">
-                Job
-              </th>
-            </tr>
-          </Thead>
-          <Tbody className="inter-regular text-base">
-            <tr>
-              <td className="whitespace-nowrap px-6 py-4">Bank of Insurance</td>
-              <td className="whitespace-nowrap px-6 py-4">10.20.2024</td>
-              <td className="whitespace-nowrap px-6 py-4">Manager</td>
-            </tr>
-            <tr>
-              <td className="whitespace-nowrap px-6 py-4">Bank of Insurance</td>
-              <td className="whitespace-nowrap px-6 py-4">10.19.2024</td>
-              <td className="whitespace-nowrap px-6 py-4">Teller</td>
-            </tr>
-            <tr>
-              <td className="whitespace-nowrap px-6 py-4">Bank of Insurance</td>
-              <td className="whitespace-nowrap px-6 py-4">10.18.2024</td>
-              <td className="whitespace-nowrap px-6 py-4">Broker</td>
-            </tr>
-          </Tbody>
-        </table>
+        {jobs.length === 0 ? (
+          <NoRecordsMessage>There are no records!</NoRecordsMessage>
+        ) : (
+          <table className="min-w-full text-left">
+            <Thead className="inter-regular text-base">
+              <tr>
+                <th scope="col" className="px-6 py-4">
+                  Company
+                </th>
+                <th scope="col" className="px-6 py-4">
+                  Date
+                </th>
+                <th scope="col" className="px-6 py-4">
+                  Job
+                </th>
+              </tr>
+            </Thead>
+            <Tbody className="inter-regular text-base">
+              {jobs.map((job: any) => (
+                <tr key={job?.id}>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    {job?.company_name ?? "-"}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    {job?.date ?? "-"}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    {job?.job_title ?? "-"}
+                  </td>
+                </tr>
+              ))}
+            </Tbody>
+          </table>
+        )}
       </TableContainer>
     </PageContainer>
   );
@@ -104,4 +131,10 @@ const Tbody = styled.tbody`
   tr:nth-child(odd) {
     background: #ffffff;
   }
+`;
+const NoRecordsMessage = styled.p`
+  padding: 20px;
+  font-size: 18px;
+  color: #1b1b1b;
+  text-align: center;
 `;
