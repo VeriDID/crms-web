@@ -1,8 +1,9 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
+import { useLocation } from "react-router-dom";
 
-// Sample transcript data (you would replace this with actual data fetching)
+// // Sample transcript data (you would replace this with actual data fetching)
 const sampleTranscript = [
   {
     Term: "FY",
@@ -28,15 +29,9 @@ const sampleTranscript = [
 ];
 
 const ApplicantDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>(); // Get the dynamic "id" from the URL
-
-  // In a real scenario, you'd fetch the applicant details using the id
-  const applicant = {
-    name: "Jason Student",
-    status: "Active",
-    transcript: sampleTranscript,
-    id: id,
-  };
+  // const { id } = useParams<{ id: string }>(); // Get the dynamic "id" from the URL
+  const location = useLocation();
+  const applicant = location.state?.applicant;
 
   return (
     <>
@@ -67,18 +62,20 @@ const ApplicantDetailPage: React.FC = () => {
         <DetailCard>
           <DetailRow>
             <Label>Student Name</Label>
-            <Value>{applicant.name}</Value>
+            <Value>
+              {applicant?.metadata?.StudentRecord?.student_name ?? "-"}
+            </Value>
           </DetailRow>
 
           <DetailRow>
             <Label>Status</Label>
-            <Value>{applicant.status}</Value>
+            <Value>{applicant?.state ?? "-"}</Value>
           </DetailRow>
 
           <DetailRow>
             <Label>Transcript</Label>
             <TranscriptBox>
-              <pre>{JSON.stringify(applicant.transcript, null, 2)}</pre>
+              <pre>{JSON.stringify(sampleTranscript, null, 2)}</pre>
             </TranscriptBox>
           </DetailRow>
         </DetailCard>

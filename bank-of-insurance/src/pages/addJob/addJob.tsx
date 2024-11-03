@@ -1,8 +1,10 @@
 import * as React from "react";
 import { useState } from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { HeadFC, PageProps } from "gatsby";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const AddJobPage: React.FC<Partial<PageProps>> = () => {
   const [jobDetails, setJobDetails] = useState({
@@ -11,16 +13,46 @@ const AddJobPage: React.FC<Partial<PageProps>> = () => {
     jobTitle: "",
     jobPosting: "",
   });
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setJobDetails({ ...jobDetails, [e.target.name]: e.target.value });
+    setMessage("");
   };
 
-  const handleSubmit = () => {
-    // TODO: Add form submission logic here
-    console.log("Job Details:", jobDetails);
+  const handleSubmit = async () => {
+    // Check if any field is empty
+    const emptyFields = Object.entries(jobDetails).filter(
+      ([key, value]) => !value
+    );
+
+    if (emptyFields.length > 0) {
+      setMessage("Please fill in all fields.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/jobs`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(jobDetails),
+      });
+      console.log(response, "addJob");
+      if (response.ok) {
+        navigate("/job");
+      } else {
+        setMessage("Failed to create job posting.");
+        console.error("Failed to create job posting");
+      }
+    } catch (error) {
+      setMessage("Error sending job posting.");
+      console.error("Error sending job posting:", error);
+    }
   };
 
   return (
@@ -78,6 +110,7 @@ const AddJobPage: React.FC<Partial<PageProps>> = () => {
           onChange={handleInputChange}
           placeholder="Job Posting"
         />
+        {message && <ErrorMessage>{message}</ErrorMessage>}
         <div className="flex items-center justify-end">
           <button onClick={handleSubmit}>Post</button>
         </div>
@@ -147,4 +180,10 @@ const JobPostingForm = styled.div`
     cursor: pointer;
     width: 100px;
   }
+`;
+// Styled component for the error message
+const ErrorMessage = styled.div`
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
 `;
