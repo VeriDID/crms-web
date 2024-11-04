@@ -1,32 +1,43 @@
 import * as React from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import type { HeadFC, PageProps } from "gatsby";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const JobPage: React.FC<Partial<PageProps>> = () => {
   const title = "Job Posting";
 
-  // Sample data for jobs
-  const jobs = [
-    {
-      company: "Bank of Insurance",
-      date: "10.20.2024",
-      job: "Manager",
-      id: 1,
-    },
-    {
-      company: "Bank of Insurance",
-      date: "10.20.2024",
-      job: "Teller",
-      id: 2,
-    },
-    {
-      company: "Bank of Insurance",
-      date: "10.20.2024",
-      job: "Broker",
-      id: 3,
-    },
-  ];
+  const navigate = useNavigate();
+
+  const [jobs, setJobs] = useState([]);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await fetch(`${API_URL}/jobs`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data && data?.statusCode !== 500) {
+          setJobs(data);
+        }
+      } catch (error) {
+        console.error("Error fetching student data:", error);
+      }
+    };
+
+    fetchJobs();
+  }, []);
+
+  const handleRowClick = (job: any) => {
+    navigate(`/job/${job?.id}`, { state: { job } });
+  };
 
   return (
     <PageContainer>
@@ -35,30 +46,40 @@ const JobPage: React.FC<Partial<PageProps>> = () => {
       </div>
 
       <TableContainer className="overflow-x-auto my-2">
-        <table className="min-w-full text-left">
-          <Thead className="inter-regular text-base">
-            <tr>
-              <th scope="col" className="px-6 py-4">
-                Company
-              </th>
-              <th scope="col" className="px-6 py-4">
-                Date
-              </th>
-              <th scope="col" className="px-6 py-4">
-                Job
-              </th>
-            </tr>
-          </Thead>
-          <Tbody className="inter-regular text-base">
-            {jobs.map((job, index) => (
-              <ClickableRow key={job.id} to={`/jobs/${job.id}`}>
-                <td className="whitespace-nowrap px-6 py-4">{job.company}</td>
-                <td className="whitespace-nowrap px-6 py-4">{job.date}</td>
-                <td className="whitespace-nowrap px-6 py-4">{job.job}</td>
-              </ClickableRow>
-            ))}
-          </Tbody>
-        </table>
+        {jobs.length === 0 ? (
+          <NoRecordsMessage>There are no records!</NoRecordsMessage>
+        ) : (
+          <table className="min-w-full text-left">
+            <Thead className="inter-regular text-base">
+              <tr>
+                <th scope="col" className="px-6 py-4">
+                  Company
+                </th>
+                <th scope="col" className="px-6 py-4">
+                  Date
+                </th>
+                <th scope="col" className="px-6 py-4">
+                  Job
+                </th>
+              </tr>
+            </Thead>
+            <Tbody className="inter-regular text-base">
+              {jobs.map((job: any) => (
+                <ClickableRow key={job?.id} onClick={() => handleRowClick(job)}>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    {job?.company_name ?? "-"}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    {job?.date ?? "-"}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    {job?.job_title ?? "-"}
+                  </td>
+                </ClickableRow>
+              ))}
+            </Tbody>
+          </table>
+        )}
       </TableContainer>
     </PageContainer>
   );
@@ -95,17 +116,24 @@ const Tbody = styled.tbody`
     background: #ffffff;
   }
 `;
-const ClickableRow = styled(Link)`
+const ClickableRow = styled.tr`
   display: table-row;
   color: inherit;
+  cursor: pointer;
   text-decoration: none;
   &:hover {
-    background-color: #f0f0f0;
+    background-color: #f0f0f0 !important;
   }
   &:visited {
-    color: inherit;
+    color: inherit !important;
   }
   td {
-    padding: 1rem;
+    padding: 1rem !important;
   }
+`;
+const NoRecordsMessage = styled.p`
+  padding: 20px;
+  font-size: 18px;
+  color: #1b1b1b;
+  text-align: center;
 `;

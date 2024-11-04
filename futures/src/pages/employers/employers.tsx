@@ -1,17 +1,57 @@
 import * as React from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import type { HeadFC, PageProps } from "gatsby";
+import useAgentStore from "@/stores/useAgent.store";
+
+const API_URL = import.meta.env.VITE_API_URL;
+const AGENT = import.meta.env.VITE_AGENT_NAME;
 
 const EmployersPage: React.FC<Partial<PageProps>> = () => {
   const title = "Employers";
+  const [employers, setEmployers] = useState([]);
+
+  useEffect(() => {
+    const fetchEmployers = async () => {
+      const agentInfo = useAgentStore.getState().agentInfo;
+
+      // Only fetch emplouers if agentInfo is available
+      if (!agentInfo) return;
+
+      try {
+        const response = await fetch(
+          `${API_URL}/v1.0/connections/agent/${AGENT}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data && data?.statusCode !== 500) {
+          setEmployers(data);
+        }
+      } catch (error) {
+        console.error("Error fetching employers data:", error);
+      }
+    };
+
+    // Set a timeout of 5 seconds before fetching
+    const timeoutId = setTimeout(() => {
+      fetchEmployers();
+    }, 1000);
+
+    // Clean up the timeout if the component unmounts
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   return (
     <PageContainer>
       <div className="flex items-center justify-between">
         <h1 className="bai-jamjuree-regular">{title}</h1>
         <StyledLink
-          key="addStudent"
+          key="addEmployer"
           to="/add-employer"
           className="flex items-center text-white px-4 py-2 inter-regular-bold"
         >
@@ -32,38 +72,40 @@ const EmployersPage: React.FC<Partial<PageProps>> = () => {
       </div>
 
       <TableContainer className="overflow-x-auto my-2">
-        <table className="min-w-full text-left">
-          <Thead className="inter-regular text-base">
-            <tr>
-              <th scope="col" className="px-6 py-4">
-                Company
-              </th>
-              <th scope="col" className="px-6 py-4">
-                Contact
-              </th>
-              <th scope="col" className="px-6 py-4">
-                Status
-              </th>
-            </tr>
-          </Thead>
-          <Tbody className="inter-regular text-base">
-            <tr>
-              <td className="whitespace-nowrap px-6 py-4">Bank of Insurance</td>
-              <td className="whitespace-nowrap px-6 py-4">Robert Trustly</td>
-              <td className="whitespace-nowrap px-6 py-4">Active</td>
-            </tr>
-            <tr>
-              <td className="whitespace-nowrap px-6 py-4">Bank of Insurance</td>
-              <td className="whitespace-nowrap px-6 py-4">Bob Trustworth</td>
-              <td className="whitespace-nowrap px-6 py-4">Pending</td>
-            </tr>
-            <tr>
-              <td className="whitespace-nowrap px-6 py-4">Bank of Insurance</td>
-              <td className="whitespace-nowrap px-6 py-4">Bob Trustworth</td>
-              <td className="whitespace-nowrap px-6 py-4">Pending</td>
-            </tr>
-          </Tbody>
-        </table>
+        {employers.length === 0 ? (
+          <NoRecordsMessage>There are no records!</NoRecordsMessage>
+        ) : (
+          <table className="min-w-full text-left">
+            <Thead className="inter-regular text-base">
+              <tr>
+                <th scope="col" className="px-6 py-4">
+                  Company
+                </th>
+                <th scope="col" className="px-6 py-4">
+                  Contact
+                </th>
+                <th scope="col" className="px-6 py-4">
+                  Status
+                </th>
+              </tr>
+            </Thead>
+            <Tbody className="inter-regular text-base">
+              {employers.map((employer: any) => (
+                <tr key={employer?.id}>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    {employer?.company_name ?? "-"}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    {employer?.contact_name ?? "-"}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    {employer?.state ?? "-"}
+                  </td>
+                </tr>
+              ))}
+            </Tbody>
+          </table>
+        )}
       </TableContainer>
     </PageContainer>
   );
@@ -104,4 +146,10 @@ const Tbody = styled.tbody`
   tr:nth-child(odd) {
     background: #ffffff;
   }
+`;
+const NoRecordsMessage = styled.p`
+  padding: 20px;
+  font-size: 18px;
+  color: #1b1b1b;
+  text-align: center;
 `;

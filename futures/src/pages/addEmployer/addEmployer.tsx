@@ -1,26 +1,67 @@
 import * as React from "react";
 import { useState } from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import type { HeadFC, PageProps } from "gatsby";
 
+const API_URL = import.meta.env.VITE_API_URL;
+const AGENT = import.meta.env.VITE_AGENT_NAME;
+
 const AddEmployerPage: React.FC<Partial<PageProps>> = () => {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [contactName, setContactName] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [invitationUrl, setInvitationUrl] = useState("");
+  const navigate = useNavigate();
 
-  const openInviteModal = () => {
-    setIsInviteModalOpen(true);
+  const openInviteModal = async () => {
+    try {
+      // Send the invite request
+      const response = await fetch(
+        `${API_URL}/v1.0/connections/create-new-invitation`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            agentName: AGENT,
+            attachmentData: {
+              company_name: companyName,
+              contact_name: contactName,
+            },
+          }),
+        }
+      );
+      if (response.ok) {
+        const data = await response.text();
+        setInvitationUrl(data); // Assuming the API returns an invitation URL
+        setIsInviteModalOpen(true);
+      } else {
+        console.error("Failed to create invitation");
+      }
+    } catch (error) {
+      console.error("Error sending invitation:", error);
+    }
   };
 
   const closeInviteModal = () => {
     setIsInviteModalOpen(false);
+    setInvitationUrl("");
+  };
+
+  const completeAndGoHome = () => {
+    setIsInviteModalOpen(false);
+    setInvitationUrl("");
+    navigate("/employers");
   };
 
   return (
     <PageContainer>
       <div className="flex items-center">
         <Link
-          key="Students"
+          key="Employers"
           to="/employers"
           className="flex items-center cursor-pointer"
         >
@@ -47,11 +88,15 @@ const AddEmployerPage: React.FC<Partial<PageProps>> = () => {
           type="text"
           className="px-2 inter-regular"
           placeholder="Company Name"
+          value={companyName}
+          onChange={(e) => setCompanyName(e.target.value)}
         />
         <input
           type="text"
           className="px-2 inter-regular"
           placeholder="Contact Name"
+          value={contactName}
+          onChange={(e) => setContactName(e.target.value)}
         />
         <button
           onClick={openInviteModal}
@@ -67,10 +112,10 @@ const AddEmployerPage: React.FC<Partial<PageProps>> = () => {
             <h3 className="bai-jamjuree-regular text-3xl">Invite</h3>
             <EmployerInfo className="flex justify-between items-center mt-10 mb-5 pb-5">
               <div>
-                <span className="inter-regular-bold">VeriDID</span>
-                <p className="inter-regular">Dave McKay</p>
+                <span className="inter-regular-bold">{companyName}</span>
+                <p className="inter-regular">{contactName}</p>
               </div>
-              <QRCodeSVG value={"123"} size={150} />
+              <QRCodeSVG value={invitationUrl} size={500} />
             </EmployerInfo>
             <ModalActions className="inter-regular-bold flex justify-end">
               <button
@@ -79,7 +124,10 @@ const AddEmployerPage: React.FC<Partial<PageProps>> = () => {
               >
                 Close
               </button>
-              <button className="completeBtn text-white py-2 px-4 rounded">
+              <button
+                onClick={completeAndGoHome}
+                className="completeBtn text-white py-2 px-4 rounded"
+              >
                 Complete
               </button>
             </ModalActions>
@@ -92,7 +140,7 @@ const AddEmployerPage: React.FC<Partial<PageProps>> = () => {
 
 export default AddEmployerPage;
 
-export const Head: HeadFC = () => <title>Add Student</title>;
+export const Head: HeadFC = () => <title>Add Employer</title>;
 
 /* Styles */
 const PageContainer = styled.div`
