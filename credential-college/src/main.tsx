@@ -23,11 +23,15 @@ const fetchInitialData = async () => {
   // }
 };
 
-// Fetch initial data before rendering - create agent
-await fetchInitialData();
+// Initialize and render the app after fetching data
+const initializeApp = async () => {
+  await fetchInitialData();
+  root.render(
+    <React.StrictMode>
+      <RouterProvider router={router} />
+    </React.StrictMode>
+  );
+};
 
-root.render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
-);
+// Call initializeApp to fetch data and render the app
+initializeApp();
