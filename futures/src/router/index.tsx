@@ -18,7 +18,7 @@ export const router = createBrowserRouter([
       { path: "/employers", element: <EmployersPage /> },
       { path: "/add-employer", element: <AddEmployerPage /> },
       { path: "/job", element: <JobPage /> },
-      { path: "/jobs/:id", element: <JobDetailPage /> },
+      { path: "/job/:id", element: <JobDetailPage /> },
     ],
   },
 ]);

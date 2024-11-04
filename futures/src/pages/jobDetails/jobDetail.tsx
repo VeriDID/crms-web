@@ -1,26 +1,12 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
+import { useLocation } from "react-router-dom";
 
 const JobDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>(); // Get the dynamic "id" from the URL
-
-  // In a real scenario, you'd fetch the job details using the id
-  const job = {
-    name: "Bank of Insurance",
-    date: "10.20.2024",
-    title: "Manager",
-    description: `
-    At Bank of Insurance, we're on a journey to do our best. Helping the customers and businesses we serve to make better and smarter financial decisions and enabling the communities we support to grow and succeed. We believe it takes all of us to bring our shared ambition to life, and each person is unique in their potential. A career with U.S. Bank gives you a wide, ever-growing range of opportunities to discover what makes you thrive at every stage of your career. Try new things, learn new skills and discover what you excel at—all from Day One.
-
-    Job Description:
-
-    About you:
-    • Energy and passion for delighting customers, eager to exceed their goals and expectations
-    • Consistent track record of highly professional customer service in a fast-paced, dynamic environment
-  `,
-    id: id,
-  };
+  // const { id } = useParams<{ id: string }>(); // Get the dynamic "id" from the URL
+  const location = useLocation();
+  const job = location.state?.job;
 
   return (
     <>
@@ -49,23 +35,23 @@ const JobDetailPage: React.FC = () => {
         <DetailCard>
           <DetailRow>
             <Label>Company Name</Label>
-            <Value>{job.name}</Value>
+            <Value>{job?.company_name}</Value>
           </DetailRow>
 
           <DetailRow>
             <Label>Date</Label>
-            <Value>{job.date}</Value>
+            <Value>{job?.date}</Value>
           </DetailRow>
 
           <DetailRow>
             <Label>Job Title</Label>
-            <Value>{job.title}</Value>
+            <Value>{job?.job_title}</Value>
           </DetailRow>
 
           <DetailRow>
             <Label>Job Posting</Label>
             <TranscriptBox>
-              <pre>{job.description}</pre>
+              <pre>{job.job_posting}</pre>
             </TranscriptBox>
           </DetailRow>
         </DetailCard>
