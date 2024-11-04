@@ -10,13 +10,13 @@ const AGENT = import.meta.env.VITE_AGENT_NAME;
 
 const EmployersPage: React.FC<Partial<PageProps>> = () => {
   const title = "Employers";
-  const [students, setStudents] = useState([]);
+  const [employers, setEmployers] = useState([]);
 
   useEffect(() => {
-    const fetchStudents = async () => {
+    const fetchEmployers = async () => {
       const agentInfo = useAgentStore.getState().agentInfo;
 
-      // Only fetch students if agentInfo is available
+      // Only fetch emplouers if agentInfo is available
       if (!agentInfo) return;
 
       try {
@@ -30,16 +30,16 @@ const EmployersPage: React.FC<Partial<PageProps>> = () => {
 
         const data = await response.json();
         if (data && data?.statusCode !== 500) {
-          setStudents(data);
+          setEmployers(data);
         }
       } catch (error) {
-        console.error("Error fetching student data:", error);
+        console.error("Error fetching employers data:", error);
       }
     };
 
     // Set a timeout of 5 seconds before fetching
     const timeoutId = setTimeout(() => {
-      fetchStudents();
+      fetchEmployers();
     }, 1000);
 
     // Clean up the timeout if the component unmounts
@@ -51,7 +51,7 @@ const EmployersPage: React.FC<Partial<PageProps>> = () => {
       <div className="flex items-center justify-between">
         <h1 className="bai-jamjuree-regular">{title}</h1>
         <StyledLink
-          key="addStudent"
+          key="addEmployer"
           to="/add-employer"
           className="flex items-center text-white px-4 py-2 inter-regular-bold"
         >
@@ -72,7 +72,7 @@ const EmployersPage: React.FC<Partial<PageProps>> = () => {
       </div>
 
       <TableContainer className="overflow-x-auto my-2">
-        {students.length === 0 ? (
+        {employers.length === 0 ? (
           <NoRecordsMessage>There are no records!</NoRecordsMessage>
         ) : (
           <table className="min-w-full text-left">
@@ -90,16 +90,16 @@ const EmployersPage: React.FC<Partial<PageProps>> = () => {
               </tr>
             </Thead>
             <Tbody className="inter-regular text-base">
-              {students.map((student: any) => (
-                <tr key={student?.id}>
+              {employers.map((employer: any) => (
+                <tr key={employer?.id}>
                   <td className="whitespace-nowrap px-6 py-4">
-                    {student?.metadata?.StudentRecord?.id ?? "-"}
+                    {employer?.company_name ?? "-"}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    {student?.metadata?.StudentRecord?.student_name ?? "-"}
+                    {employer?.contact_name ?? "-"}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    {student?.state ?? "-"}
+                    {employer?.state ?? "-"}
                   </td>
                 </tr>
               ))}

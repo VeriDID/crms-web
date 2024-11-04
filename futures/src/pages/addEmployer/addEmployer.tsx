@@ -10,8 +10,8 @@ const AGENT = import.meta.env.VITE_AGENT_NAME;
 
 const AddEmployerPage: React.FC<Partial<PageProps>> = () => {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [studentId, setStudentId] = useState("");
-  const [studentName, setStudentName] = useState("");
+  const [contactName, setContactName] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [invitationUrl, setInvitationUrl] = useState("");
   const navigate = useNavigate();
 
@@ -28,8 +28,8 @@ const AddEmployerPage: React.FC<Partial<PageProps>> = () => {
           body: JSON.stringify({
             agentName: AGENT,
             attachmentData: {
-              id: studentId,
-              student_name: studentName,
+              company_name: companyName,
+              contact_name: contactName,
             },
           }),
         }
@@ -61,7 +61,7 @@ const AddEmployerPage: React.FC<Partial<PageProps>> = () => {
     <PageContainer>
       <div className="flex items-center">
         <Link
-          key="Students"
+          key="Employers"
           to="/employers"
           className="flex items-center cursor-pointer"
         >
@@ -88,15 +88,15 @@ const AddEmployerPage: React.FC<Partial<PageProps>> = () => {
           type="text"
           className="px-2 inter-regular"
           placeholder="Company Name"
-          value={studentId}
-          onChange={(e) => setStudentId(e.target.value)}
+          value={companyName}
+          onChange={(e) => setCompanyName(e.target.value)}
         />
         <input
           type="text"
           className="px-2 inter-regular"
           placeholder="Contact Name"
-          value={studentName}
-          onChange={(e) => setStudentName(e.target.value)}
+          value={contactName}
+          onChange={(e) => setContactName(e.target.value)}
         />
         <button
           onClick={openInviteModal}
@@ -112,8 +112,8 @@ const AddEmployerPage: React.FC<Partial<PageProps>> = () => {
             <h3 className="bai-jamjuree-regular text-3xl">Invite</h3>
             <EmployerInfo className="flex justify-between items-center mt-10 mb-5 pb-5">
               <div>
-                <span className="inter-regular-bold">{studentName}</span>
-                <p className="inter-regular">{studentId}</p>
+                <span className="inter-regular-bold">{companyName}</span>
+                <p className="inter-regular">{contactName}</p>
               </div>
               <QRCodeSVG value={invitationUrl} size={500} />
             </EmployerInfo>
